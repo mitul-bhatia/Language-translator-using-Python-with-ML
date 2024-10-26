@@ -1,41 +1,63 @@
-#pip install translate
 from translate import Translator
-from tkinter import *
 import tkinter as tk
-from PIL import ImageTk,Image
-root=tk.Tk()
-root.geometry('300x500')
+from tkinter import ttk, messagebox
+from PIL import ImageTk, Image
+
+root = tk.Tk()
+root.geometry('400x550')
 root.title('Language Translator')
 
 img = ImageTk.PhotoImage(Image.open("langtrans.jpg"))
-lbi=tk.Label(root, image=img).pack()
+lbi = tk.Label(root, image=img)
+lbi.pack()
 
-hd=Label(root, text='Language Translator', font='sans 14', bg='yellow', fg='blue').pack(fill='both')
-l1=Label(root, text='From', font='sans 14 bold').pack()
-e1=Entry(root, font='sans 14 bold')
-e1.pack()
+hd = tk.Label(root, text='Language Translator', font='sans 14 bold', bg='yellow', fg='blue')
+hd.pack(fill='both')
 
-l2=Label(root, text='To',font='sans 14 bold').pack()
-e2=Entry(root,font='sans 14 bold')
-e2.pack()
+LANGUAGES = ['en', 'fr', 'de', 'es', 'hi', 'it', 'ja']
 
-l3=Label(root, text='Enter text', font='sans 14 bold').pack()
-e3=Entry(root,font='sans 14 bold')
-e3.pack()
+l1 = tk.Label(root, text='From', font='sans 12 bold')
+l1.pack()
+from_lang = ttk.Combobox(root, values=LANGUAGES, font='sans 12', state='readonly')
+from_lang.set('en')
+from_lang.pack()
 
-#l4=Label(root, text='Output').pack()
-#e4=Entry(root).pack()
+l2 = tk.Label(root, text='To', font='sans 12 bold')
+l2.pack()
+to_lang = ttk.Combobox(root, values=LANGUAGES, font='sans 12', state='readonly')
+to_lang.set('es')
+to_lang.pack()
 
-def trans():
-    t1=e1.get()
-    t2=e2.get()
-    t3=e3.get()
-    translator= Translator(from_lang=t1, to_lang=t2)
-    translation = translator.translate(t3)
-    lb=Label(root, bg="cyan", text=translation)
-    lb.pack()
-    print (translation)
+l3 = tk.Label(root, text='Enter text', font='sans 12 bold')
+l3.pack()
+text_input = tk.Entry(root, font='sans 12', width=30)
+text_input.pack()
 
-b1=Button(root, text='Submit', command=trans,font='sans 12', bg='blue', fg='yellow').pack(fill='both')
+output_label = tk.Label(root, text='Translation', font='sans 12 bold')
+output_label.pack()
+output_text = tk.Entry(root, font='sans 12', width=30, state='readonly')
+output_text.pack()
 
-root.mainloop() 
+def translate_text():
+    source_lang = from_lang.get()
+    target_lang = to_lang.get()
+    text = text_input.get()
+    
+    if not text.strip():
+        messagebox.showerror("Error", "Please enter text to translate.")
+        return
+
+    try:
+        translator = Translator(from_lang=source_lang, to_lang=target_lang)
+        translation = translator.translate(text)
+        output_text.config(state='normal')
+        output_text.delete(0, tk.END)
+        output_text.insert(tk.END, translation)
+        output_text.config(state='readonly')
+    except Exception as e:
+        messagebox.showerror("Translation Error", f"Could not translate text: {str(e)}")
+
+b1 = tk.Button(root, text='Translate', command=translate_text, font='sans 12 bold', bg='blue', fg='yellow')
+b1.pack(fill='both', pady=10)
+
+root.mainloop()
